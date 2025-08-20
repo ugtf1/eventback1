@@ -34,11 +34,19 @@ The system includes a **beautiful, responsive front-end** with modals for hall d
 
 ## 📂 Project Structure
 
-safe_haven/ ├─ config/ # Django project settings │ ├─ settings.py │ ├─ urls.py ├─ rentals/ # Main app │ ├─ migrations/ │ ├─ templates/rentals/ │ │ └─ home.html # Main responsive template │ ├─ static/rentals/ # Static assets (CSS, JS, images) │ ├─ models.py # Hall, Booking, Payment models │ ├─ views.py # Core logic & payment endpoints │ ├─ urls.py ├─ .env # Environment variables (keys, secrets) ├─ manage.py
-
-Code
-
----
+safe_haven/ ├─ config/ # Django project settings │ 
+   ├─ settings.py │ 
+   ├─ urls.py 
+├─ rentals/ # Main app │ 
+   ├─ migrations/ │ 
+   ├─ templates/rentals/ │ 
+     │ └─ home.html # Main responsive template │ 
+   ├─ static/rentals/ # Static assets (CSS, JS, images) │ 
+   ├─ models.py # Hall, Booking, Payment models │ 
+   ├─ views.py # Core logic & payment endpoints │ 
+   ├─ urls.py 
+├─ .env # Environment variables (keys, secrets) 
+├─ manage.py
 
 ## 🛠 Installation
 
