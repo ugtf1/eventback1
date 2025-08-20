@@ -1,0 +1,519 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Safe Haven — Hall Rentals</title>
+  <style>
+    :root{
+      --blue:#0a2540; --yellow:#ffd000; --blue-2:#0d355c; --bg:#f6f8fb; --text:#1a1f36; --muted:#5b6b7a; --shadow: 0 10px 30px rgba(0,0,0,.1);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:var(--bg)}
+    a{color:inherit;text-decoration:none}
+    /* Header */
+    .header{
+      background: linear-gradient(120deg, var(--blue) 10%, #193d66 50%, var(--yellow) 200%);
+      color:#fff; position:sticky; top:0; z-index:1000; box-shadow: var(--shadow);
+    }
+    .nav{
+      max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:16px; padding:14px 20px;
+    }
+    .brand{font-weight:800; letter-spacing:.5px; font-size:1.25rem; white-space:nowrap}
+    .nav-center{flex:1; display:flex; justify-content:center; gap:24px}
+    .nav-link{position:relative; padding:8px 14px; border-radius:8px; transition:all .2s ease}
+    .nav-link:hover{background:rgba(255,255,255,.12); transform:translateY(-1px)}
+    .nav-right{display:flex; align-items:center; gap:10px; min-width:260px; justify-content:flex-end}
+    .search{display:flex; align-items:center; background:rgba(255,255,255,.15); padding:8px 10px; border-radius:10px; width:100%; max-width:330px; backdrop-filter: blur(6px)}
+    .search input{border:none; outline:none; background:transparent; color:#fff; width:100%}
+    .search input::placeholder{color:rgba(255,255,255,.8)}
+    /* Hero */
+    .hero{
+      position:relative; min-height:52vh; display:grid; place-items:center; text-align:center; color:#fff; overflow:hidden;
+      background: url('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2000&auto=format&fit=crop') center/cover no-repeat;
+    }
+    .hero::after{
+      content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(10,37,64,.6), rgba(10,37,64,.4));
+    }
+    .hero-content{position:relative; padding:60px 20px; max-width:900px}
+    .hero h1{font-size: clamp(2rem, 4vw, 3.2rem); margin:0 0 12px}
+    .hero p{font-size: clamp(1rem, 1.6vw, 1.25rem); color:#eaf2ff}
+    .cta{margin-top:18px; display:inline-flex; gap:12px}
+    .btn{
+      background:#ffffff; color:var(--blue); border:none; padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer; box-shadow: var(--shadow); transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover{transform:translateY(-2px); box-shadow: 0 12px 28px rgba(0,0,0,.15)}
+    .btn.alt{background:transparent; color:#fff; border:1.5px solid rgba(255,255,255,.7)}
+    /* Grid */
+    .section{max-width:1200px; margin: -40px auto 40px; padding:0 20px}
+    .cards{display:grid; grid-template-columns: repeat(3, 1fr); gap:22px}
+    @media (max-width: 980px){ .cards{grid-template-columns: repeat(2,1fr)} }
+    @media (max-width: 640px){ .cards{grid-template-columns: 1fr} .nav-center{display:none} }
+    .card{
+      background:#fff; border-radius:16px; overflow:hidden; box-shadow: var(--shadow); display:flex; flex-direction:column; transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .card:hover{transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,.15)}
+    .card-img{height:200px; background:#eee; background-size:cover; background-position:center}
+    .card-body{padding:16px}
+    .card-title{font-weight:800; margin:6px 0 8px}
+    .card-desc{color:var(--muted); font-size:.95rem; line-height:1.5}
+    .card-meta{display:flex; align-items:center; justify-content:space-between; margin-top:14px; color:var(--blue-2)}
+    .card-actions{display:flex; gap:10px; margin-top:14px}
+    .chip{background:#eef5ff; color:var(--blue-2); padding:6px 10px; border-radius:999px; font-weight:700; font-size:.9rem}
+    .btn.book{background: linear-gradient(90deg, var(--blue), #1f4d7f); color:#fff}
+    .btn.details{background: #f3f6ff; color:var(--blue)}
+    /* Footer */
+    footer{background: var(--blue); color:#fff; padding:24px 20px; margin-top:40px}
+    .footer-inner{max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap}
+    /* Modals */
+    .modal-backdrop{
+      position:fixed; inset:0; background:rgba(10,37,64,.55); display:none; justify-content:center; align-items:center; padding:20px; z-index:2000; backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.show{display:flex}
+    .modal{
+      width:min(680px, 96vw); background:#fff; border-radius:16px; box-shadow: 0 30px 60px rgba(0,0,0,.35); overflow:hidden; animation: pop .15s ease;
+    }
+    @keyframes pop { from{transform:scale(.96); opacity:.6} to{transform:scale(1); opacity:1} }
+    .modal-header{padding:16px 20px; background:linear-gradient(120deg, var(--blue), #1f4d7f); color:#fff; display:flex; align-items:center; justify-content:space-between}
+    .modal-title{font-weight:800}
+    .modal-close{background:transparent; color:#fff; border:none; font-size:1.4rem; cursor:pointer}
+    .modal-body{padding:18px 20px}
+    .field{display:flex; flex-direction:column; margin-bottom:12px}
+    .label{font-weight:700; margin-bottom:6px}
+    .input, .select{
+      padding:10px 12px; border:1.5px solid #e3e8f0; border-radius:10px; outline:none; font-size:1rem; background:#fff;
+    }
+    .row{display:grid; gap:12px; grid-template-columns: 1fr 1fr}
+    @media (max-width:600px){ .row{grid-template-columns: 1fr} }
+    .pay-options{display:flex; gap:10px; flex-wrap:wrap}
+    .pay-pill{border:1.5px solid #e3e8f0; padding:10px 12px; border-radius:12px; cursor:pointer; user-select:none}
+    .pay-pill.active{border-color: var(--blue); background:#eef5ff}
+    .success{
+      display:flex; align-items:center; gap:10px; padding:12px; background:#ecfdf5; color:#065f46; border:1.5px solid #a7f3d0; border-radius:10px; margin:8px 0 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <nav class="nav">
+      <div class="brand">Safe Haven</div>
+      <div class="nav-center">
+        <a class="nav-link" href="https://www.ugtf.org" target="_blank" rel="noopener">Home</a>
+        <a class="nav-link" href="#halls">Halls</a>
+      </div>
+      <div class="nav-right">
+        <div class="search">
+          <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-3.5-3.5"/></svg>
+          <input id="searchInput" type="text" placeholder="Search halls..." />
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Find your perfect venue, book with confidence</h1>
+      <p>Browse elegant halls, check availability instantly, and pay securely via PayPal, Stripe, or Paystack.</p>
+      <div class="cta">
+        <a href="#halls" class="btn">Explore Halls</a>
+        <a href="#how" class="btn alt">How it works</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cards -->
+  <main class="section" id="halls">
+    <h2 style="margin:0 0 14px; font-size:1.6rem; color:var(--blue)">Popular halls</h2>
+    <div class="cards" id="hallGrid">
+      {% for hall in halls %}
+      <div class="card" data-hall-id="{{ hall.id }}" data-hall-name="{{ hall.name }}" data-hall-price="{{ hall.price_per_day }}" data-hall-image="{{ hall.image_url|default_if_none:'' }}">
+        <div class="card-img" style="background-image:url('{{ hall.image_url|default:"https://images.unsplash.com/photo-1503428593586-e225b39bddfe?q=80&w=1200&auto=format&fit=crop" }}');"></div>
+        <div class="card-body">
+          <div class="chip">${{ hall.price_per_day }} / day</div>
+          <div class="card-title">{{ hall.name }}</div>
+          <div class="card-desc">{{ hall.description|truncatechars:120 }}</div>
+          <div class="card-meta">
+            <span>Capacity: {{ hall.capacity }}</span>
+            <a href="#" class="details-link">Details</a>
+          </div>
+          <div class="card-actions">
+            <button class="btn details js-open-details">View details</button>
+            <button class="btn book js-open-book">Book</button>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <p>No halls yet. Add some in admin.</p>
+      {% endfor %}
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <div>&copy; <span id="year"></span> Safe Haven. All rights reserved.</div>
+      <div style="opacity:.9">Made with care.</div>
+    </div>
+  </footer>
+
+  <!-- Modals: Hall details -->
+  <div id="modalDetails" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" id="detailsTitle">Hall details</div>
+        <button class="modal-close" data-close="modalDetails">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailsImage" style="height:220px; border-radius:12px; background:#eee; background-size:cover; background-position:center; margin-bottom:12px;"></div>
+        <div id="detailsDesc" class="card-desc" style="margin-bottom:8px"></div>
+        <div class="chip" id="detailsPrice"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals: Booking form -->
+  <div id="modalBooking" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Book hall</div>
+        <button class="modal-close" data-close="modalBooking">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="success" id="availabilityBanner" style="display:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+          <span id="availabilityText">Available</span>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label class="label">Your name</label>
+            <input id="bName" class="input" type="text" placeholder="Full name" />
+          </div>
+          <div class="field">
+            <label class="label">Email</label>
+            <input id="bEmail" class="input" type="email" placeholder="you@example.com" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="label">Start date</label>
+            <input id="bStart" class="input" type="date" />
+          </div>
+          <div class="field">
+            <label class="label">End date</label>
+            <input id="bEnd" class="input" type="date" />
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Selected hall</label>
+          <input id="bHall" class="input" type="text" disabled />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label class="label">Estimated total</label>
+            <input id="bTotal" class="input" type="text" disabled />
+          </div>
+          <div class="field">
+            <label class="label">Availability</label>
+            <button id="btnCheckAvail" class="btn" type="button">Check availability</button>
+          </div>
+        </div>
+        <div class="card-actions" style="justify-content:flex-end">
+          <button id="btnCreateBooking" class="btn book" type="button">Continue to checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals: Checkout -->
+  <div id="modalCheckout" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Checkout</div>
+        <button class="modal-close" data-close="modalCheckout">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="label">Payment method</label>
+          <div class="pay-options" id="payOptions">
+            <div class="pay-pill active" data-provider="paypal">PayPal</div>
+            <div class="pay-pill" data-provider="stripe">Stripe</div>
+            <div class="pay-pill" data-provider="paystack">Paystack</div>
+          </div>
+        </div>
+        <div id="paypalContainer" style="margin-top:12px; display:block"></div>
+        <div id="stripeContainer" style="display:none; margin-top:12px">
+          <button id="btnStripePay" class="btn book" type="button">Pay with Stripe</button>
+        </div>
+        <div id="paystackContainer" style="display:none; margin-top:12px">
+          <button id="btnPaystackPay" class="btn book" type="button">Pay with Paystack</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modals: Success -->
+  <div id="modalSuccess" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Booking confirmed</div>
+        <button class="modal-close" data-close="modalSuccess">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="success">
+          <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>
+          <div>
+            <div style="font-weight:800">Payment successful</div>
+            <div id="successText" style="color:#0f5132; margin-top:4px">Your booking is confirmed.</div>
+          </div>
+        </div>
+        <div class="card-actions" style="justify-content:flex-end; margin-top:14px">
+          <button class="btn" data-close="modalSuccess">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Third-party SDKs -->
+  <script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&currency={{ PAYPAL_CURRENCY }}"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+
+  <!-- App JS -->
+  <script>
+    const SITE_URL = "{{ SITE_URL }}";
+    const STRIPE_PUBLIC_KEY = "{{ STRIPE_PUBLIC_KEY }}";
+    const PAYSTACK_PUBLIC_KEY = "{{ PAYSTACK_PUBLIC_KEY }}";
+    const PAYPAL_CURRENCY = "{{ PAYPAL_CURRENCY }}";
+
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+    const show = id => document.getElementById(id).classList.add('show');
+    const hide = id => document.getElementById(id).classList.remove('show');
+
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // State
+    let selectedHall = null;
+    let bookingId = null;
+    let totalAmount = null;
+
+    // Search filter
+    $('#searchInput').addEventListener('input', (e)=>{
+      const q = e.target.value.toLowerCase();
+      $$('#hallGrid .card').forEach(card=>{
+        const name = card.dataset.hallName.toLowerCase();
+        card.style.display = name.includes(q) ? '' : 'none';
+      });
+    });
+
+    // Details modal
+    $$('#hallGrid .js-open-details').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const card = e.target.closest('.card');
+        $('#detailsTitle').textContent = card.dataset.hallName;
+        $('#detailsImage').style.backgroundImage = `url('${card.dataset.hallImage || "https://images.unsplash.com/photo-1503428593586-e225b39bddfe?q=80&w=1200&auto=format&fit=crop"}')`;
+        $('#detailsPrice').textContent = `$${card.dataset.hallPrice} / day`;
+        // Description is in DOM; pull it
+        $('#detailsDesc').textContent = card.querySelector('.card-desc').textContent;
+        show('modalDetails');
+      });
+    });
+
+    // Booking modal
+    function computeTotal(price, start, end){
+      const ms = 24*60*60*1000;
+      const days = Math.floor((end - start)/ms)+1;
+      return Math.max(days,1)*parseFloat(price);
+    }
+    $$('#hallGrid .js-open-book').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const card = e.target.closest('.card');
+        selectedHall = {
+          id: parseInt(card.dataset.hallId),
+          name: card.dataset.hallName,
+          price: parseFloat(card.dataset.hallPrice)
+        };
+        $('#bHall').value = selectedHall.name;
+        $('#bStart').value = '';
+        $('#bEnd').value = '';
+        $('#bTotal').value = '';
+        $('#availabilityBanner').style.display = 'none';
+        bookingId = null;
+        show('modalBooking');
+      });
+    });
+
+    // Close modals
+    $$('[data-close]').forEach(btn=>{
+      btn.addEventListener('click', ()=> hide(btn.getAttribute('data-close')));
+    });
+    ['modalDetails','modalBooking','modalCheckout','modalSuccess'].forEach(id=>{
+      document.getElementById(id).addEventListener('click', (e)=>{
+        if(e.target.id === id) hide(id);
+      });
+    });
+
+    // Availability check
+    $('#btnCheckAvail').addEventListener('click', async ()=>{
+      const s = $('#bStart').value, e = $('#bEnd').value;
+      if(!s || !e || !selectedHall) return alert('Select dates and hall');
+      const res = await fetch(`/api/availability/?hall_id=${selectedHall.id}&start_date=${s}&end_date=${e}`);
+      const data = await res.json();
+      const start = new Date(s), end = new Date(e);
+      const total = computeTotal(selectedHall.price, start, end);
+      $('#bTotal').value = `$${total.toFixed(2)}`;
+      totalAmount = total;
+      const banner = $('#availabilityBanner');
+      const text = $('#availabilityText');
+      if(data.available){
+        banner.style.display = 'flex';
+        banner.style.background = '#ecfdf5';
+        banner.style.borderColor = '#a7f3d0';
+        text.textContent = 'Available';
+      } else {
+        banner.style.display = 'flex';
+        banner.style.background = '#fef2f2';
+        banner.style.borderColor = '#fecaca';
+        text.textContent = 'Not available';
+      }
+    });
+
+    // Create booking
+    $('#btnCreateBooking').addEventListener('click', async ()=>{
+      const name = $('#bName').value.trim();
+      const email = $('#bEmail').value.trim();
+      const s = $('#bStart').value, e = $('#bEnd').value;
+      if(!name || !email || !s || !e || !selectedHall) return alert('Fill all fields');
+      const res = await fetch('/api/book/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+        body: JSON.stringify({ hall_id: selectedHall.id, start_date: s, end_date: e, customer_name: name, customer_email: email })
+      });
+      const data = await res.json();
+      if(!res.ok){ alert(data.error || 'Failed'); return; }
+      bookingId = data.booking_id;
+      totalAmount = parseFloat(data.total_amount);
+      hide('modalBooking');
+      openCheckout();
+    });
+
+    function openCheckout(){
+      // Reset tabs
+      $$('#payOptions .pay-pill').forEach(p=>p.classList.remove('active'));
+      $$('#payOptions .pay-pill')[0].classList.add('active');
+      document.getElementById('paypalContainer').style.display = 'block';
+      document.getElementById('stripeContainer').style.display = 'none';
+      document.getElementById('paystackContainer').style.display = 'none';
+      renderPayPal();
+      show('modalCheckout');
+    }
+
+    // Pay method switching
+    $$('#payOptions .pay-pill').forEach(p=>{
+      p.addEventListener('click', ()=>{
+        $$('#payOptions .pay-pill').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+        const prov = p.dataset.provider;
+        document.getElementById('paypalContainer').style.display = prov==='paypal'?'block':'none';
+        document.getElementById('stripeContainer').style.display = prov==='stripe'?'block':'none';
+        document.getElementById('paystackContainer').style.display = prov==='paystack'?'block':'none';
+      });
+    });
+
+    // CSRF helper
+    function getCsrf(){
+      const name = 'csrftoken=';
+      const parts = document.cookie.split(';');
+      for (let c of parts){ c = c.trim(); if (c.startsWith(name)) return c.substring(name.length); }
+      return '';
+    }
+
+    // PayPal Buttons
+    function renderPayPal(){
+      if(!window.paypal) return;
+      $('#paypalContainer').innerHTML = '';
+      paypal.Buttons({
+        style: { layout:'horizontal', color:'gold', shape:'pill', label:'paypal' },
+        createOrder: async () => {
+          const res = await fetch('/api/paypal/create-order/', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+            body: JSON.stringify({ booking_id: bookingId })
+          });
+          const data = await res.json();
+          return data.id;
+        },
+        onApprove: async (data, actions) => {
+          const res = await fetch('/api/paypal/capture-order/', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+            body: JSON.stringify({ orderID: data.orderID })
+          });
+          const cap = await res.json();
+          hide('modalCheckout');
+          showSuccess('Your PayPal payment was successful.');
+        },
+        onError: (err) => { alert('PayPal error. Check console.'); console.error(err); }
+      }).render('#paypalContainer');
+    }
+
+    // Stripe Checkout
+    const stripe = Stripe(STRIPE_PUBLIC_KEY);
+    $('#btnStripePay').addEventListener('click', async ()=>{
+      const res = await fetch('/api/stripe/create-checkout-session/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+        body: JSON.stringify({ booking_id: bookingId })
+      });
+      const data = await res.json();
+      if(data.url){
+        window.location = data.url;
+      } else if (data.id) {
+        // Fallback: use redirectToCheckout
+        stripe.redirectToCheckout({ sessionId: data.id });
+      } else {
+        alert('Stripe init failed');
+      }
+    });
+
+    // Paystack Inline
+    $('#btnPaystackPay').addEventListener('click', async ()=>{
+      const init = await fetch('/api/paystack/initialize/', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-CSRFToken': getCsrf()},
+        body: JSON.stringify({ booking_id: bookingId })
+      });
+      const data = await init.json();
+      const handler = PaystackPop.setup({
+        key: data.public_key || PAYSTACK_PUBLIC_KEY,
+        email: data.email,
+        amount: data.amount_kobo,
+        ref: data.reference,
+        callback: function(response){
+          hide('modalCheckout');
+          showSuccess('Your Paystack payment was successful.');
+        },
+        onClose: function(){ /* user closed */ }
+      });
+      handler.openIframe();
+    });
+
+    function showSuccess(msg){
+      $('#successText').textContent = msg;
+      show('modalSuccess');
+    }
+
+    // Handle success on return (Stripe success_url)
+    const urlParams = new URLSearchParams(window.location.search);
+    if(urlParams.get('success')==='true'){
+      showSuccess('Your payment completed successfully.');
+    }
+
+  </script>
+</body>
+</html>
