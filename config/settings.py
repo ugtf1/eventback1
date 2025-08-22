@@ -8,8 +8,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-unsafe")
-DEBUG = os.getenv("DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,https://eventback1.onrender.com").split(",")
+DEBUG = os.getenv("DEBUG", "False") == "False"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost,https://eventback1.onrender.com,eventback1.onrender.com").split(",")
+# ALLOWED_HOSTS = ['localhost','https://eventback1.onrender.com','eventback1.onrender.com']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -65,4 +66,4 @@ STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 PAYSTACK_PUBLIC_KEY = os.getenv("PAYSTACK_PUBLIC_KEY", "")
 PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY", "")
-SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
+SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000,https://eventback1.onrender.com,eventback1.onrender.com")
