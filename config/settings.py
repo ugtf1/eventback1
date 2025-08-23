@@ -54,6 +54,7 @@ DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DI
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "rentals" / "static"]
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Payments
 PAYPAL = {
